@@ -371,7 +371,7 @@ func (d *Dapperfile) tag() string {
 
 	cwd = strings.TrimSpace(cwd)
 	reg := regexp.MustCompile(`[\W|_]{1,}`)
-	img := reg.ReplaceAllString(str, "-")
+	img := reg.ReplaceAllString(cwd, "-")
 
 	return fmt.Sprintf("%s:%s", img, tag)
 }
