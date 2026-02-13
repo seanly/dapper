@@ -1,0 +1,31 @@
+# CI: test on PR and push to main (reference: kustomizer)
+name: build
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: true
+      - name: Run test
+        run: make -f Makefile.ci test
+      - name: Check if working tree is dirty
+        run: |
+          if [[ -n $(git status -s) ]]; then
+            echo 'run "make -f Makefile.ci test" and commit changes'
+            exit 1
+          fi

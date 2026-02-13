@@ -1,0 +1,15 @@
+# Makefile for CI (build + vet). Main Makefile is for dapper scripts.
+.PHONY: build test vet fmt
+
+# Local build uses default VERSION from main.go (0.0.0-dev). For release build: make build VERSION=1.0.0
+build:
+	CGO_ENABLED=0 go build -o ./bin/dapper $(if $(VERSION),-ldflags "-s -w -X main.VERSION=$(VERSION)",) .
+
+vet:
+	go vet ./...
+
+fmt:
+	go fmt ./...
+
+test: vet build
+	./bin/dapper --version || true

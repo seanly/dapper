@@ -9,9 +9,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-var (
-	VERSION = "0.0.0"
-)
+// VERSION is set at build time via -ldflags "-X main.VERSION=..." (e.g. by GoReleaser from tag).
+var VERSION = "0.0.0-dev"
 
 func main() {
 	exit := func(err error) {

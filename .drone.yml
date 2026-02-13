@@ -12,7 +12,7 @@ steps:
     image: registry.suse.com/bci/golang:1.17
     privileged: true
     commands:
-      - go build -mod vendor -o dapper
+      - go build -o dapper
     volumes:
       - name: socket
         path: /var/run/docker.sock

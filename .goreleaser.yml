@@ -1,0 +1,90 @@
+# GoReleaser config for dapper. Main is at repo root, binary name: dapper.
+# Fork: use GITHUB_REPOSITORY_OWNER so tap/ghcr go to your user; set PUSH_GITHUB_TOKEN.
+version: 2
+project_name: dapper
+changelog:
+  use: github-native
+
+builds:
+  - id: linux
+    binary: dapper
+    main: .
+    ldflags:
+      - -s -w -X main.VERSION={{ .Version }}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+  - id: darwin
+    binary: dapper
+    main: .
+    ldflags:
+      - -s -w -X main.VERSION={{ .Version }}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+  - id: windows
+    binary: dapper
+    main: .
+    ldflags:
+      - -s -w -X main.VERSION={{ .Version }}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+    goarch:
+      - amd64
+
+archives:
+  - name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    id: nix
+    builds: [linux, darwin]
+    format: tar.gz
+    files:
+      - LICENSE
+  - name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    id: windows
+    builds: [windows]
+    format: zip
+    files:
+      - LICENSE
+
+source:
+  enabled: true
+  name_template: '{{ .ProjectName }}_{{ .Version }}_source_code'
+
+# Homebrew tap: push Formula to owner/homebrew-tap (brew tap owner/tap, brew install owner/tap/dapper)
+brews:
+  - name: dapper
+    repository:
+      owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/dapper"
+    description: "Docker build wrapper (Dapper)"
+    install: |
+      bin.install "dapper"
+    test: |
+      system "#{bin}/dapper", "--version"
+
+# Optional: Docker images to ghcr.io/owner/dapper (uncomment to enable)
+# dockers:
+#   - image_templates:
+#       - 'ghcr.io/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+#     dockerfile: Dockerfile
+#     use: buildx
+#     goos: linux
+#     goarch: amd64
+# docker_manifests:
+#   - name_template: 'ghcr.io/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Tag }}'
+#     image_templates:
+#       - 'ghcr.io/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
